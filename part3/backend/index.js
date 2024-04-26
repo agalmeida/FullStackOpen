@@ -25,7 +25,7 @@ app.use(morgan(function (tokens, req, res) {
       tokens.status(req, res),
       tokens.res(req, res, 'content-length'), '-',
       tokens['response-time'](req, res), 'ms',
-      tokens['req-body'](req, res) // Include the request body in the log
+      tokens['req-body'](req, res) 
     ].join(' ')
 }))
 
@@ -101,7 +101,7 @@ app.post('/api/numbers', (request, response) => {
         })
     }
     const person = {
-        id: Math.floor(Math.random() * 100000000), // Random id between 0 and 9999
+        id: Math.floor(Math.random() * 100000000), 
         name: body.name,
         number: body.number 
     }
