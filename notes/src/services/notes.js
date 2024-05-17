@@ -1,6 +1,13 @@
 import axios from 'axios'
 const baseUrl = '/api/notes'
 
+const noteSchema = new mongoose.Schema({
+  content: String,
+  important: Boolean,
+})
+
+const Note = mongoose.model('Note', noteSchema)
+
 const getAll = () => {
   const request = axios.get(baseUrl)
   const nonExisting = {
@@ -20,5 +27,7 @@ const update = (id, newObject) => {
   const request = axios.put(`${baseUrl}/${id}`, newObject)
   return request.then(response => response.data)
 }
+
+
 
 export default { getAll, create, update } 
