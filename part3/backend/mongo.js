@@ -1,4 +1,5 @@
 const mongoose = require('mongoose')
+require('dotenv').config()
 
 if (process.argv.length<3) {
   console.log('give password as argument')
@@ -10,17 +11,23 @@ const name = process.argv[3]
 const number = process.argv[4]
 
 
-const url =
-    `mongodb+srv://fullstack:${password}@cluster0.5iv21md.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0`
+const url = MONGODB_URI
 
 mongoose.set('strictQuery',false)
-
 mongoose.connect(url)
 
 const phoneSchema = new mongoose.Schema({
   name: String,
   number: String,
 })
+
+phoneSchema.set('toJSON', {
+    transform: (document, returnedObject) => {
+      returnedObject.id = returnedObject._id.toString() 
+      delete returnedObject._id  
+      delete returnedObject.__v  
+    }
+  })
 
 const Phone = mongoose.model('Phone', phoneSchema)
 
@@ -43,6 +50,7 @@ if (name !== undefined && number !== undefined){
         mongoose.connection.close()
     })
 }
+
 
 
 

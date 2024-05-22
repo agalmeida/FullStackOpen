@@ -3,7 +3,7 @@ content-type: application/json
 
 {
     "name": "sample",
-    "number": "45675323"
+    "number": "53234343433"
 }
 
 ###
@@ -11,3 +11,9 @@ content-type: application/json
 DELETE http://localhost:3001/api/numbers/ HTTP/1.1
 content-type: application/json
 
+###
+GET http://localhost:3001/info/ HTTP/1.1
+
+
+###
+GET http://localhost:3001/api/numbers/66468a78f621c5f58496457e/ HTTP/1.1
