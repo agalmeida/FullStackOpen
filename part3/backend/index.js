@@ -67,7 +67,7 @@ app.get('/api/numbers/:id', (request, response, next) => {
     .catch(error => next(error))
 })
 
-app.post('/api/numbers', (request, response) => {
+app.post('/api/numbers', (request, response, next) => {
     const body = request.body
     if (!body.name) {
         return response.status(400).json({
@@ -129,10 +129,11 @@ app.use(unknownEndpoint)
 
 const errorHandler = (error, request, response, next) => {
     console.error(error.message)
-  
     if (error.name === 'CastError') {
-      return response.status(400).send({ error: 'malformatted id' })
-    } 
+        return response.status(400).send({ error: 'malformatted id' })
+    } else if (error.name === 'ValidationError') {
+        return response.status(400).json({ error: error.message })
+    }
   
     next(error)
 }

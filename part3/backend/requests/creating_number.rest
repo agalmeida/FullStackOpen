@@ -2,7 +2,7 @@ POST http://localhost:3001/api/numbers/ HTTP/1.1
 content-type: application/json
 
 {
-    "name": "sample",
+    "name": "sas",
     "number": "53234343433"
 }
 
@@ -16,4 +16,4 @@ GET http://localhost:3001/info/ HTTP/1.1
 
 
 ###
-GET http://localhost:3001/api/numbers/66468a78f621c5f58496457e/ HTTP/1.1
+GET http://localhost:3001/api/numbers/ HTTP/1.1
