@@ -9,112 +9,115 @@ app.use(express.static('dist'))
 app.use(cors())
 
 const requestLogger = (request, response, next) => {
-    console.log('Method:', request.method)
-    console.log('Path:  ', request.path)
-    console.log('Body:  ', request.body)
-    console.log('---')
-    next()
+  console.log('Method:', request.method)
+  console.log('Path:  ', request.path)
+  console.log('Body:  ', request.body)
+  console.log('---')
+  next()
 }
-
+// eslint-disable-next-line no-unused-vars
 morgan.token('req-body', (req, res) => JSON.stringify(req.body))
 
 app.use(requestLogger)
 app.use(express.json())
 
 app.use(morgan(function (tokens, req, res) {
-    return [
-      tokens.method(req, res),
-      tokens.url(req, res),
-      tokens.status(req, res),
-      tokens.res(req, res, 'content-length'), '-',
-      tokens['response-time'](req, res), 'ms',
-      tokens['req-body'](req, res) 
-    ].join(' ')
+  return [
+    tokens.method(req, res),
+    tokens.url(req, res),
+    tokens.status(req, res),
+    tokens.res(req, res, 'content-length'), '-',
+    tokens['response-time'](req, res), 'ms',
+    tokens['req-body'](req, res)
+  ].join(' ')
 }))
 
 app.get('/api/numbers', (request, response) => {
-    Phone.find({}).then(numbers => {
-        response.json(numbers)
-    })
+  Phone.find({}).then(numbers => {
+    response.json(numbers)
+  })
 })
 
 
 
 app.get('/info', async (request, response) => {
-    try {
-        const timestamp = new Date()
-        const count = await Phone.countDocuments({})
-        response.send(
-            `<div>
+  try {
+    const timestamp = new Date()
+    const count = await Phone.countDocuments({})
+    response.send(
+      `<div>
                 <p>Phonebook has info for ${count} people</p>
                 <p>${timestamp}</p>
             </div>`
-        )
-    } catch (err) {
-        console.error(err)
-        response.status(500).send('Error retrieving data from the database.')
-    }
+    )
+  } catch (err) {
+    console.error(err)
+    response.status(500).send('Error retrieving data from the database.')
+  }
 })
 
 app.get('/api/numbers/:id', (request, response, next) => {
-    Phone.findById(request.params.id).then(phone => {
-        if (phone) {
-            response.json(phone)
-          } else {
-            response.status(404).end()
-          }
-    })
+  Phone.findById(request.params.id).then(phone => {
+    if (phone) {
+      response.json(phone)
+    } else {
+      response.status(404).end()
+    }
+  })
     .catch(error => next(error))
 })
 
 app.post('/api/numbers', (request, response, next) => {
-    const body = request.body
-    if (!body.name) {
-        return response.status(400).json({
-            error: `name is missing`
+  const body = request.body
+  if (!body.name) {
+    return response.status(400).json({
+      error: 'name is missing'
+    })
+  }
+  if (!body.number) {
+    return response.status(400).json({
+      error: 'number is missing'
+    })
+  }
+  Phone.findOne({ name: body.name })
+    .then(foundPhone => {
+      if(foundPhone) {
+        Phone.findOneAndUpdate({ name: body.name }, { number: body.number }, { new: true })
+          .then(updatedPhone => response.json(updatedPhone))
+          .catch(error => next(error))
+      } else{
+        const phone = new Phone ({
+          name: body.name,
+          number: body.number
         })
-    }
-    if (!body.number) {
-        return response.status(400).json({
-            error: `number is missing`
+        phone.save().then(savedPhone => {
+          response.json(savedPhone)
         })
-    }
-    Phone.findOne({ name: body.name})
-        .then(foundPhone => {
-            if(foundPhone) {
-                Phone.findOneAndUpdate({ name: body.name }, { number: body.number }, { new: true })
-                    .then(updatedPhone => response.json(updatedPhone))
-                    .catch(error => next(error))
-            } else{
-                const phone = new Phone ({ 
-                    name: body.name,
-                    number: body.number 
-                })
-                phone.save().then(savedPhone => {
-                    response.json(savedPhone)
-                })
-                .catch(error => next(error))
-            }
-        })
+          .catch(error => next(error))
+      }
+    })
 })
 
 app.put('/api/numbers/:id', (req, res, next) => {
-    const { id } = req.params
-    const { name, number } = req.body
+  const { id } = req.params
+  const { name, number } = req.body
 
-    Phone.findByIdAndUpdate(id, { name, number }, { new: true })
-        .then(updatedPhone => {
-            if (!updatedPhone) {
-                return res.status(404).send({ error: 'Number not found' })
-            }
-            res.json(updatedPhone)
-        })
-        .catch(error => next(error))
+  Phone.findByIdAndUpdate(id, { name, number }, { new: true })
+    .then(updatedPhone => {
+      if (!updatedPhone) {
+        return res.status(404).send({ error: 'Number not found' })
+      }
+      res.json(updatedPhone)
+    })
+    .catch(error => next(error))
 })
 
-app.delete('/api/numbers/:id', (request, response) => {
-    Phone.findByIdAndDelete(request.params.id)
+app.delete('/api/numbers/:id', (request, response, next) => {
+  Phone.findByIdAndDelete(request.params.id)
     .then(result => {
+      if (!result){
+        return response.status(404).send({ error: 'Number not found' })
+      }
       response.status(204).end()
     })
     .catch(error => next(error))
@@ -122,22 +125,22 @@ app.delete('/api/numbers/:id', (request, response) => {
 
 
 const unknownEndpoint = (request, response) => {
-    response.status(404).send({ error: 'unknown endpoint' })
-  }
-  
+  response.status(404).send({ error: 'unknown endpoint' })
+}
+
 app.use(unknownEndpoint)
 
 const errorHandler = (error, request, response, next) => {
-    console.error(error.message)
-    if (error.name === 'CastError') {
-        return response.status(400).send({ error: 'malformatted id' })
-    } else if (error.name === 'ValidationError') {
-        return response.status(400).json({ error: error.message })
-    }
-  
-    next(error)
+  console.error(error.message)
+  if (error.name === 'CastError') {
+    return response.status(400).send({ error: 'malformatted id' })
+  } else if (error.name === 'ValidationError') {
+    return response.status(400).json({ error: error.message })
+  }
+
+  next(error)
 }
-  
+
 // this has to be the last loaded middleware, also all the routes should be registered before this!
 app.use(errorHandler)
 

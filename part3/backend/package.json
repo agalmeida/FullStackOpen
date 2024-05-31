@@ -8,7 +8,9 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "dev": "nodemon index.js",
     "build:ui": "rm -rf dist && cd ../../part2/phonebook && npm run build && cp -r dist ../../part3/backend",
-    "deploy:full": "npm run build:ui && git add . && git commit -m uibuild && git push"
+    "deploy:full": "npm run build:ui && git add . && git commit -m uibuild && git push",
+    "lint": "eslint ."
+
   },
   "author": "Arthur Almeida",
   "license": "ISC",
@@ -20,6 +22,12 @@
     "morgan": "^1.10.0"
   },
   "devDependencies": {
+    "@eslint/compat": "^1.0.1",
+    "@eslint/js": "^9.3.0",
+    "@stylistic/eslint-plugin-js": "^2.1.0",
+    "eslint": "^8.57.0",
+    "eslint-plugin-react": "^7.34.2",
+    "globals": "^15.3.0",
     "nodemon": "^3.1.0"
   }
 }
