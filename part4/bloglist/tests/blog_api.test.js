@@ -6,9 +6,6 @@ const app = require('../app')
 const assert = require('assert')
 const helper = require('./test_helper')
 
-
-
-
 const api = supertest(app)
 
 test('blogs are returned as json', async () => {
@@ -86,6 +83,46 @@ test('adding blogs with no title or url', async () =>{
     .post('/api/blogs')
     .send(noUrlBlog)
     .expect(400)
+})
+
+
+test('a blog can be deleted', async () => {
+  const blogsAtStart = await helper.blogsInDb()
+  const blogToDelete = blogsAtStart[0]
+
+
+  await api
+    .delete(`/api/blogs/${blogToDelete.id}`)
+    .expect(204)
+
+  const blogsAtEnd = await helper.blogsInDb()
+
+  const titles = blogsAtEnd.map(r => r.title)
+  assert(!titles.includes(blogToDelete.title))
+
+  assert.strictEqual(blogsAtEnd.length, helper.initialBlogs.length - 1)
+})
+
+test('can update blog likes', async () => {
+  const blogsAtStart = await helper.blogsInDb()
+  const blogToUpdate = blogsAtStart[0]
+  const updatedLikes = {
+    title: blogToUpdate.title,
+    author: blogToUpdate.author,
+    url: blogToUpdate.url,
+    likes: 99
+  }
+
+  await api
+    .put(`/api/blogs/${blogToUpdate.id}`)
+    .send(updatedLikes)
+    .expect(200) 
+
+  //fetch the updated blog from the database
+  const blogsAtEnd = await helper.blogsInDb()
+  const updatedBlog = blogsAtEnd.find(blog => blog.id === blogToUpdate.id)
+  //assert that the likes were updated
+  assert.strictEqual(updatedBlog.likes, 99)
 })
 
 

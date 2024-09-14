@@ -2,12 +2,49 @@ POST http://localhost:3001/api/blogs/ HTTP/1.1
 content-type: application/json
 
 {
-    "title": "How to sell your Liver",
-    "author": "Luigi",
-    "url": "www.sellliverwithluigi.org",
-    "likes": 11
+    "userId": "66e4d943986066a96a006634",
+    "title": "How to sell your hands",
+    "author": "mario",
+    "url": "www.sellhands.org",
+    "likes": 14
+}
+
+###
+POST http://localhost:3001/api/users/ HTTP/1.1
+content-type: application/json
+
+{
+    "username": "agcoder",
+    "name": "tuts",
+    "password": "luigiman"
+}
+
+
+###
+
+POST http://localhost:3001/api/login HTTP/1.1
+content-type: application/json
+
+{
+    "username": "agcoder",
+    "password": "luigiman"
+}
+
+###
+
+POST http://localhost:3001/api/blogs/ HTTP/1.1
+content-type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImFnY29kZXIiLCJpZCI6IjY2ZTRkOTQzOTg2MDY2YTk2YTAwNjYzNCIsImlhdCI6MTcyNjI3OTIzOSwiZXhwIjoxNzI2MjgyODM5fQ.sR6xACVDA617JsYmv6Vm3dYolZjmEwR8rer-J6G8g24
+
+{
+    "title": "Best Blog outthere",
+    "author": "mario",
+    "url": "www.bestblog.org",
+    "likes": 4
 }
 
 ###
 
 GET http://localhost:3001/api/blogs/ HTTP/1.1
+
+
