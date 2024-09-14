@@ -1,4 +1,5 @@
 const logger = require('./logger')
+const jwt = require('jsonwebtoken')
 
 const requestLogger = (request, response, next) => {
   logger.info('Method:', request.method)
@@ -28,14 +29,22 @@ const errorHandler = (error, request, response, next) => {
       error: 'token expired'
     })
   }
-
-  
-
   next(error)
+}
+
+const tokenExtractor = (request, response, next) => {
+  const authorization = request.get('authorization')
+  if (authorization && authorization.startsWith('Bearer ')) {
+    request.token = authorization.substring(7) //attach the token to the request object and remove Bearer + the space that follows it
+  } else {
+    request.token = null //if no token, set req.token to null
+  }
+  next()
 }
 
 module.exports = {
   requestLogger,
   unknownEndpoint,
-  errorHandler
+  errorHandler,
+  tokenExtractor
 }
