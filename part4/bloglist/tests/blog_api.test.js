@@ -5,6 +5,8 @@ const supertest = require('supertest')
 const app = require('../app')
 const assert = require('assert')
 const helper = require('./test_helper')
+const jwt = require('jsonwebtoken')
+const User = require('../models/user')
 
 const api = supertest(app)
 
@@ -33,6 +35,14 @@ test('unique identifier property of blog posts is named id', async () => {
 })
 
 test('a valid blog post can be added ', async () => {
+  //create a new user and get the token
+  const user = await User.findOne({ username: 'raton' }) //ensure there's a valid user in your DB
+  const userForToken = {
+    username: user.username,
+    id: user._id,
+  }
+  const token = jwt.sign(userForToken, process.env.SECRET)
+
   const newBlog = {
     title: 'Valid post',
     author: 'Yours Trully Bob',
@@ -42,7 +52,10 @@ test('a valid blog post can be added ', async () => {
 
   await api
     .post('/api/blogs')
+    .set('Authorization', `Bearer ${token}`)
     .send(newBlog)
+    .expect(201)
+  
   const blogsAtEnd = await helper.blogsInDb()
   assert.strictEqual(blogsAtEnd.length, helper.initialBlogs.length + 1)
   const titles = blogsAtEnd.map(blog => blog.title)
@@ -50,6 +63,14 @@ test('a valid blog post can be added ', async () => {
 })
 
 test('likes default to 0 if undefined', async () => {
+  //create a new user and get the token
+  const user = await User.findOne({ username: 'raton' }) //ensure there's a valid user in your DB
+  const userForToken = {
+    username: user.username,
+    id: user._id,
+  }
+  const token = jwt.sign(userForToken, process.env.SECRET)
+
   const newBlog = {
     title: 'Post without likes',
     author: 'Author Without Likes',
@@ -57,13 +78,23 @@ test('likes default to 0 if undefined', async () => {
   }
   await api
     .post('/api/blogs')
+    .set('Authorization', `Bearer ${token}`)
     .send(newBlog)
+    .expect(201)
   const blogsAtEnd = await helper.blogsInDb()
   const addedBlog = blogsAtEnd.find(blog => blog.title === newBlog.title)
   assert.strictEqual(addedBlog.likes, 0)
 })
 
 test('adding blogs with no title or url', async () =>{
+  //create a new user and get the token
+  const user = await User.findOne({ username: 'raton' }) //ensure there's a valid user in your DB
+  const userForToken = {
+    username: user.username,
+    id: user._id,
+  }
+  const token = jwt.sign(userForToken, process.env.SECRET)
+  
   const noTitleBlog = {
     author: 'Author Without Title',
     url: 'withouttitle.com',
@@ -76,11 +107,13 @@ test('adding blogs with no title or url', async () =>{
   }
   await api
     .post('/api/blogs')
+    .set('Authorization', `Bearer ${token}`)
     .send(noTitleBlog)
     .expect(400)
 
   await api
     .post('/api/blogs')
+    .set('Authorization', `Bearer ${token}`)
     .send(noUrlBlog)
     .expect(400)
 })
@@ -89,10 +122,20 @@ test('adding blogs with no title or url', async () =>{
 test('a blog can be deleted', async () => {
   const blogsAtStart = await helper.blogsInDb()
   const blogToDelete = blogsAtStart[0]
+  console.log('Title:', blogToDelete.title)
 
+  console.log('User ID:', blogToDelete.user)
+  //create a new user and get the token
+  const user = await User.findById(blogToDelete.user) //ensure there's a valid user in your DB
+  const userForToken = {
+    username: user.username,
+    id: user._id,
+  }
+  const token = jwt.sign(userForToken, process.env.SECRET)
 
   await api
     .delete(`/api/blogs/${blogToDelete.id}`)
+    .set('Authorization', `Bearer ${token}`)
     .expect(204)
 
   const blogsAtEnd = await helper.blogsInDb()

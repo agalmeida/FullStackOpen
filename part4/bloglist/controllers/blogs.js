@@ -2,7 +2,7 @@ const blogsRouter = require('express').Router()
 const Blog = require('../models/blog')
 const User = require('../models/user')
 const jwt = require('jsonwebtoken')
-const { tokenExtractor } = require('../utils/middleware')
+const middleware = require('../utils/middleware');
 
 
 blogsRouter.get('/', async (request, response) => {
@@ -11,16 +11,9 @@ blogsRouter.get('/', async (request, response) => {
     response.json(blogs)
   })
 
-blogsRouter.post('/', async (request, response, next) => {
+blogsRouter.post('/', middleware.userExtractor, async (request, response, next) => {
   const body = request.body
-  let decodedToken
-  try {
-    decodedToken = jwt.verify(request.token, process.env.SECRET)
-    // Use req.token directly from the middleware
-  } catch (error) {
-    return response.status(401).json({ error: 'Token missing or invalid' })
-  }
-  const user = await User.findById(decodedToken.id)
+  const user = request.user
 
   const blog = new Blog({
     title: body.title,
@@ -44,7 +37,7 @@ blogsRouter.post('/', async (request, response, next) => {
   }
 })
 
-blogsRouter.get('/:id', async (request, response) => {
+blogsRouter.get('/:id', middleware.userExtractor, async (request, response) => {
   const blog = await Blog.findById(request.params.id)
   if (blog) {
     response.json(blog)
@@ -53,9 +46,24 @@ blogsRouter.get('/:id', async (request, response) => {
   }
 })
   
-blogsRouter.delete('/:id', async (request, response) => {
-  await Blog.findByIdAndDelete(request.params.id)
-  response.status(204).end()
+blogsRouter.delete('/:id', middleware.userExtractor, async (request, response, next) => {
+  const user = request.user
+  try {
+    //verify if blog exists by id
+    const blog = await Blog.findById(request.params.id)
+    if (!blog) {
+      return response.status(404).json({ error: 'Blog not found' })
+    }
+    //check if user deleting the blog is the user who created
+    if (blog.user.toString() === user.id) {
+      await Blog.findByIdAndDelete(request.params.id)
+      response.status(204).end()
+    } else{
+      return response.status(403).json({error: 'You are not authorized to delete this blog'})
+    }
+  } catch (error) {
+    next(error)
+  }
 })
 
 blogsRouter.put('/:id', async (request, response) => {

@@ -14,9 +14,9 @@ POST http://localhost:3001/api/users/ HTTP/1.1
 content-type: application/json
 
 {
-    "username": "agcoder",
-    "name": "tuts",
-    "password": "luigiman"
+    "username": "raton",
+    "name": "jose",
+    "password": "elraton"
 }
 
 
@@ -26,25 +26,29 @@ POST http://localhost:3001/api/login HTTP/1.1
 content-type: application/json
 
 {
-    "username": "agcoder",
-    "password": "luigiman"
+    "username": "raton",
+    "password": "elraton"
 }
 
 ###
 
 POST http://localhost:3001/api/blogs/ HTTP/1.1
 content-type: application/json
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImFnY29kZXIiLCJpZCI6IjY2ZTRkOTQzOTg2MDY2YTk2YTAwNjYzNCIsImlhdCI6MTcyNjM0MDk5MSwiZXhwIjoxNzI2MzQ0NTkxfQ.ezu8Q_ERwNBadySnqWaIGNK27VILrgPzSTNCb4hzUHQ
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6InJhdG9uIiwiaWQiOiI2NmVlM2I3NGMzMjRjMzQzY2NhMjgzZjkiLCJpYXQiOjE3MjY4ODg4MzEsImV4cCI6MTcyNjg5MjQzMX0.wOtiENjtZP50zLR4D69oBXt8y18t8uSjLEC1mvKCHhU
 
 {
-    "title": "Best Blog outthere",
-    "author": "mario",
-    "url": "www.bestblog.org",
-    "likes": 4
+    "title": "new one hehe",
+    "author": "arturo",
+    "url": "www.newest.org",
+    "likes": 58
 }
 
 ###
 
 GET http://localhost:3001/api/blogs/ HTTP/1.1
 
+###
+DELETE http://localhost:3001/api/blogs/66ee34884faedb04970f2776 HTTP/1.1
+content-type: application/json
+Authorization: Bearer .eyJ1c2VybmFtZSI6InJhdG9uIiwiaWQiOiI2NmU1ZWI5OTYxZDIwODZkODBjZGE4NmMiLCJpYXQiOjE3MjY4ODY1ODMsImV4cCI6MTcyNjg5MDE4M30.3FFxnkZErgXt3uz50T9n6v9CyxytcS-KH1WrBv8l9Qo
 
